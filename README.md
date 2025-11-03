@@ -16,6 +16,7 @@
 4. การดึงข้อมูล Variant Annotations ที่ซ้ำกับข้อมูล Variant ที่มีอยู่ (Call_ANN)
 5. การรวมไฟล์ (Combine_VCF)
 6. การใช้ SnpSift (ANN_SnpSift)
+![ภาพ nextflow](GWASPopGen.drawio.png)
 
 ## 2-การใช้งาน-Nextflow-GWAS-PopGen 
 ### For vcf file
