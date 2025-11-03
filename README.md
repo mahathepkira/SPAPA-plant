@@ -1,7 +1,25 @@
 # Nextflow-GWAS-PopGen
 
-## For vcf file
-### GWAS
+## หัวข้อ
+1. [บทนำ](#1-บทนำ)
+2. [การใช้งาน Nextflow-GWAS-PopGen](#2-การใช้งาน-Nextflow-GWAS-PopGen)
+3. [การเตรียมเครื่องมือและข้อมูลสำหรับ Nextflow-GWAS-PopGen](#3-การเตรียมเครื่องมือและข้อมูลสำหรับ-Nextflow-GWAS-PopGen)
+4. [รายละเอียดขั้นตอนใน Nextflow-GWAS-PopGen](#4-รายละเอียดขั้นตอนใน-Nextflow-GWAS-PopGen)
+5. [Output](#5-Output)
+   
+---
+## 1. บทนำ
+ Nextflow-GWAS-PopGen เป็น bioinformatics pipline ที่พัฒนาขึ้นสำหรับการเคราะห์ GWAS และ PopGen โดยจะมีขั้นตอนดังต่อไปนี้ 
+1. การทำ Variant Annotations
+2. การสร้าง Database (BuildCustomDB)
+3. การเปรียบเทียบข้อมูล Variant ที่ซ้ำกับข้อมูล Variant ที่มีอยู่ (Comapare_VCF)
+4. การดึงข้อมูล Variant Annotations ที่ซ้ำกับข้อมูล Variant ที่มีอยู่ (Call_ANN)
+5. การรวมไฟล์ (Combine_VCF)
+6. การใช้ SnpSift (ANN_SnpSift)
+
+## 2-การใช้งาน-Nextflow-GWAS-PopGen 
+### For vcf file
+#### GWAS
 ```bash
 nextflow run -profile gb main.nf --vcfgzFile data/inputonebase.vcf.gz --traitsFile /nbt_main/share/pachyderm/gwasrice/datauserupload/sampleinonebase/inputtrat2.txt \
      --QCTools BCFTools \
