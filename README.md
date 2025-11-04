@@ -15,6 +15,7 @@
 3. GWAS Analysis
 4. Selected PruneLD Tools and Population anlysis
 5. Visualize QC
+   
 ![ภาพ nextflow](GWASPopGen.drawio.png)
 
 ## 2-การใช้งาน-Nextflow-GWAS-PopGen 
