@@ -8,6 +8,7 @@
 5. [Output](#5-Output)
    
 ---
+
 ## 1. บทนำ
  Nextflow-GWAS-PopGen เป็น bioinformatics pipline ที่พัฒนาขึ้นสำหรับการเคราะห์ GWAS และ PopGen โดยจะมีขั้นตอนดังต่อไปนี้ 
 1. Selected data type
@@ -19,7 +20,7 @@
 ![ภาพ nextflow](GWASPopGen.drawio.png)
 
 ## 2-การใช้งาน-Nextflow-GWAS-PopGen 
-### For vcf file
+### สำหรับ input vcf file
 #### GWAS
 ```bash
 nextflow run -profile gb main.nf --vcfgzFile data/inputonebase.vcf.gz --traitsFile /nbt_main/share/pachyderm/gwasrice/datauserupload/sampleinonebase/inputtrat2.txt \
@@ -48,7 +49,7 @@ nextflow run -profile gb main.nf --vcfgzFile data/inputonebase.vcf.gz --traitsFi
      --PopGenTools phylo,admixture,ipcaps \
      --output result
 ```
-### For hmp file
+### สำหรับ input hmp file
 #### GWAS
 ```bash
 nextflow run -profile gb main.nf --hmpFile data/inputonebase.hmp.txt --traitsFile /nbt_main/share/pachyderm/gwasrice/datauserupload/sampleinonebase/inputtrat2.txt \
@@ -281,10 +282,20 @@ singularity {
 ```
 ## 4. รายละเอียดขั้นตอนใน Nextflow-GWAS-PopGen
 ### Selected data type
+```bash
+```
 ### Preprocess Data
+```bash
+```
 ### GWAS Analysis
+```bash
+```
 ### Selected PruneLD Tools and Population anlysis
+```bash
+```
 ### Visualize QC
+```bash
+```
 ## 5. Output
 ### ภาพรวม Output
 ```bash
