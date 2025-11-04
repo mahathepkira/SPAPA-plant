@@ -78,6 +78,19 @@ nextflow run -profile gb main.nf --hmpFile data/inputonebase.hmp.txt --traitsFil
      --PopGenTools phylo,admixture,ipcaps \
      --output result
 ```
+### Options
+- `--vcfgzFile` = ไฟล์ input vcf (จำเป็น:กรณี input เป็น vcf)
+- `--hmpFile` = ไฟล์ input hmp (จำเป็น:กรณี input เป็น hmp)
+- `--traitsFile` = ไฟล์ traits สำหรับการทำ GWAS และ PopGen (จำเป็น)
+- `--QCTools` = เครื่องมือในการทำ QC ข้อมูล (PLINK หรือ BCFTools|ค่าเริ่มต้น:PLINK)
+- `--homozygous` = การ filetr homozygous (homozygous,null|ค่าเริ่มต้น:null)
+- `--maf` = ค่าในการกรอง Minor Allele Frequency (ค่าเริ่มต้น:0.05)
+- `--geno` =  ค่าในการกรอง Genotypeing rate (missing rate) (ค่าเริ่มต้น:0.02)
+- `--method` = model ในการทำ GWAS (CMLM, MLM, GLM, MLMM, FarmCPU, FASTLMM|ค่าเริ่มต้น:CMLM)   
+- `--PruneLDTools` = เครื่องมือในการทำ Prune LD ข้อมูล (PLINK หรือ BCFTools|ค่าเริ่มต้น:PLINK)
+- `--analyze` = เลือกการวิเคราะห์ (GWAS, PopGen, BOTH|ค่าเริ่มต้น:GWAS)
+- `--PopGenTools` = เลือกการวิเคราะห์ PopGen (phylo, admixture, ipcaps, faststructure|ค่าเริ่มต้น:admixture)
+- `--output` = โฟลเดอร์หรือไฟล์ output (จำเป็น)
 ## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ Nextflow-GWAS-PopGen
 ### เครื่องมือ
 1. Nextflow: version 19 
@@ -281,20 +294,322 @@ singularity {
 }
 ```
 ## 4. รายละเอียดขั้นตอนใน Nextflow-GWAS-PopGen
-### Selected data type
-```bash
-```
 ### Preprocess Data
 ```bash
+process QualityControlByPLINK {
+
+  tag { key }
+
+  input:
+  tuple key, file(map), file(ped)
+
+  output:
+  tuple key, file("${prefix}.clean.map"), file("${prefix}.clean.ped")
+
+  script:
+  prefix=map.baseName
+  """
+  plink --file $prefix \
+    --no-fid \
+    --no-parents \
+    --no-sex \
+    --no-pheno \
+    --geno ${params.geno} \
+    --recode \
+    --allow-extra-chr \
+    --out ${prefix}.clean \
+    --maf ${params.maf} \
+  """
+}
+```
+```bash
+process QualityControlByBCFTools {
+
+  tag { key }
+
+  input:
+  tuple key, file(vcfgz)
+
+  output:
+  tuple key, file("${prefix}.clean.vcf.gz")
+
+  script:
+  prefix=vcfgz.baseName
+  """
+  bcftools view -i 'MAF >= ${params.geno} && F_MISSING <= ${params.maf}' \
+    -Oz -o ${prefix}.clean.vcf.gz ${vcfgz}
+  """
+}
 ```
 ### GWAS Analysis
 ```bash
+process GWASAnalysis {
+
+	tag { "$key:$method" }
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+	input:
+	tuple key, traits, file(traitTxt), file(hmp)
+	val method
+
+	output:
+	tuple key, file("*.csv"), file("*.pdf")
+
+	script:
+	cmds="""
+  cat $traitTxt | cut -f1,3- > traits.trimmed.txt
+	"""
+	if (method == "FASTLMM")
+		cmds+"""
+		GAPIT BICmodelSelection traits.trimmed.txt $hmp
+		for trait in ${traits.join(" ")}; do
+			optimalPCsVal=\$(optimalPCs GAPIT.MLM.\${trait}.BIC.Model.Selection.Results.csv)
+			if (\$((optimalPCsVal != "0")));
+			then
+				cut -d "," -f 1-\$((optimalPCsVal+1)) GAPIT.PCA.csv > GAPIT.PCA.\${optimalPCsVal}.\${trait}.csv
+				GAPIT $method traits.trimmed.txt $hmp GAPIT.PCA.\${optimalPCsVal}.\${trait}.csv
+			else
+				GAPIT $method traits.trimmed.txt $hmp
+			fi
+		done
+		"""
+	else if (method != "FASTLMM")
+		cmds+"""
+		GAPIT $method traits.trimmed.txt $hmp
+		"""
+	//else if (method == "cMLM")
+	//	cmds+"""
+	//	GAPIT $method traits.trimmed.txt $hmp
+	//	"""
+	//else if (method == "GLM")
+	//	cmds+"""
+	//	GAPIT $method traits.trimmed.txt $hmp
+	//	"""
+	else 
+		throw new Exception("Unknown method...")
+}
 ```
 ### Selected PruneLD Tools and Population anlysis
 ```bash
+process PruneLDByPLINK {
+
+  tag { key }
+
+  input:
+  tuple key, file(map), file(ped)
+
+  output:
+  tuple key, file("${prefix}.final.bed"), file("${prefix}.final.bim"), file("${prefix}.final.fam")
+
+  script:
+  prefix=map.baseName
+  """
+  plink --file ${prefix} --indep-pairwise 100 5 0.2 --allow-extra-chr --out ${prefix}.pruneLD
+  plink --file ${prefix} --extract ${prefix}.pruneLD.prune.in --make-bed --allow-extra-chr --out ${prefix}.final
+  """
+}
+```
+```bash
+process PruneLDByBCFTools {
+
+  tag { key }
+
+  input:
+  tuple key, file(vcfgz)
+
+  output:
+  tuple key, file("${prefix}.final.vcf.gz")
+
+  script:
+  prefix=vcfgz.baseName
+  """
+  bcftools +prune ${vcfgz} -m 0.2 -w 100 -N maxAF -Oz -o ${prefix}.final.vcf.gz
+  """
+}
+```
+```bash
+process IPCAPs {
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  errorStrategy "ignore"
+
+  tag { key }
+
+  input:
+  tuple key, file(bed), file(bim), file(fam), traits, file(traitTxt)
+
+  output:
+  tuple key,
+    file("node*.txt"),
+    file("cluster_output/images/*"),
+    file("cluster_output/RData/*"),
+    file("cluster_output/*.html"),
+    file("cluster_output/groups.txt")
+
+  script:
+  """
+  cat $traitTxt | awk 'NR > 1 { if (\$2 == "NA") print \$1" "\$1; else print \$1" "\$2; }' > sampleLabel.txt
+  IPCAPS $bed sampleLabel.txt || true
+  for rdataFile in \$(find . -name "node*.RData"); do
+    extractIPCAPSnode $fam \$rdataFile
+  done
+  """
+}
+
+```
+```bash
+process Admixture {
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  tag { "$key:$k" }
+
+  input:
+  tuple key, file(bed), file(bim), file(fam)
+  each k
+
+  output:
+  tuple k, key, file(bed), file(bim), file(fam), file("*.Q"), file("${key}.${k}.cv.errors.csv")
+
+  script:
+  """
+  admixture $bed $k --cv=10 -j${task.cpus}
+  perl -n -e'/^CV error \\(K=(\\d+)\\): ([\\d\\.]*)\$/ && print \$1,",",\$2' .command.log > ${key}.${k}.cv.errors.csv
+  """
+}
+```
+```bash
+process SummarizeAdmixture {
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  tag { key }
+
+  input:
+  tuple optimalK, key, file(bed), file(bim), file(fam), file(minCVq), minCVerror
+  file(minCVerrors)
+
+  output:
+  tuple optimalK, key, file("cv.errors.csv"), file("optimalK.csv")
+
+  script:
+  """
+  echo "K,CrossValidationError" > cv.errors.csv
+  for eachCVErrorByK in \$(find . -name "*.cv.errors.csv" | sort -k3,3g -t '.'); do
+    cat \$eachCVErrorByK >> cv.errors.csv
+    echo "" >> cv.errors.csv
+  done
+  echo "$optimalK,$minCVerror" >> optimalK.csv
+  """
+}
+
+```
+```bash
+process GatherAdmixtureResults {
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  input:
+  tuple file(cvQs), file(cvErrors)
+
+  output:
+  tuple file(cvQs), file(cvErrors)
+
+  script:
+  """
+  echo "Just Gathering results to same s3 path..."
+  """
+}
+```
+```bash
+process StructureByFastStructure {
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  errorStrategy "ignore"
+
+  tag { "$key:$k" }
+
+  input:
+  tuple key, file(bed), file(bim), file(fam)
+  each k
+
+  output:
+  tuple k, key, file("*.meanQ")
+
+  script:
+  prefix=bed.baseName
+
+  """
+  structure.py -K $k --input=$prefix --output=$key
+
+  """
+}
+```
+```bash
+process Phylogenetic {
+
+  errorStrategy 'ignore'
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  tag { key }
+
+  input:
+  tuple key, file(vcf)
+
+  output:
+  tuple key, file("*.min4.phy.treefile")
+
+  script:
+  prefix = vcf.simpleName.replaceFirst(/\.vcf$/, "").replaceFirst(/\.gz$/, "")
+  """
+  vcf2phylip.py -i ${vcf} -o ${prefix}.min4.phy
+
+  iqtree2 -s ${prefix}.min4.phy -B 1000 -T Auto
+
+  """
+}
 ```
 ### Visualize QC
 ```bash
+process VCFstats {
+
+  tag { "${fileId}" }
+
+  publishDir "${outputPrefixPath(params, task)}"
+  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  input:
+  tuple val(fileId), file(vcf)
+
+  output:
+  file("*.frq")
+  file("*.lmiss")
+  file("*.TsTv.summary")
+  file("*.summary")
+  file("*.csv")
+  script:
+  prefix=vcf.baseName
+
+  """
+  vcftools --gzvcf "$vcf" --freq --out "${prefix}"
+  vcftools --gzvcf "$vcf" --missing-site --out "${prefix}"
+  vcftools --gzvcf "$vcf" --TsTv-summary --out "${prefix}"
+  zcat "$vcf" | vcf-annotate --fill-type | grep -oP "TYPE=\\w+" | sort | uniq -c > "${prefix}.summary"
+  python /nbt_main/home/lattapol/nextflow-Callvariants/bin/create_AF_his.py ${prefix}.frq
+  python /nbt_main/home/lattapol/nextflow-Callvariants/bin/create_lmiss_his.py ${prefix}.lmiss  
+  """
+}
 ```
 ## 5. Output
 ### ภาพรวม Output
