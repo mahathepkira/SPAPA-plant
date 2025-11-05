@@ -209,17 +209,14 @@
       "name": "PopGenTools",
       "doc": "PopGenTools to Analysis.",
       "type": {
+        "type": "array",
+        "items": {
           "name": "PopGenToolsEnumType",
           "type": "enum",
-          "symbols": [
-            "phylo",
-            "admixture",
-            "ipcaps",
-            "faststructure"
-          ],
-          "default": "admixture"
+          "symbols": ["phylo", "admixture", "ipcaps", "faststructure"],
+        }
       },
-      "default": "admixture",
+      "default": ["admixture"],
       "__required": true,
       "__private": false
     },
@@ -274,3 +271,4 @@
     }
   ]
 }
+
