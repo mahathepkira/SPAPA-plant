@@ -93,11 +93,22 @@ nextflow run -profile gb main.nf --hmpFile data/inputonebase.hmp.txt --traitsFil
 - `--output` = โฟลเดอร์หรือไฟล์ output (จำเป็น)
 ## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ Nextflow-GWAS-PopGen
 ### เครื่องมือ
-1. Nextflow: version 19
-2. Preprocess Data : 
-3. GWAS Analysis :
-4. Selected PruneLD Tools and Population anlysis :
-5. Visualize QC :
+Nextflow: version 19
+1. Preprocess Data
+   - PLINK version 1.9b
+   - BCFtools version 1.17
+   - TASSEL version 5.2.59
+2. GWAS Analysis
+   - R version
+3. Selected PruneLD Tools and Population anlysis :
+   - PLINK version 1.9b
+   - BCFtools version 1.17
+   - TASSEL version 5.2.59
+   - ADMIXTURE version 1.3.0
+   - Python version 2.7.15
+   - faststructure version 1.0
+4. Visualize QC :
+   - VCFtools version 0.1.16
 ### การเตรียม config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
 ```bash
