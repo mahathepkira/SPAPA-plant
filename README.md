@@ -99,7 +99,7 @@ Nextflow: version 19
    - BCFtools version 1.17
    - TASSEL version 5.2.59
 2. GWAS Analysis
-   - R version
+   - R version 4.1.2
 3. Selected PruneLD Tools and Population anlysis :
    - PLINK version 1.9b
    - BCFtools version 1.17
@@ -309,6 +309,7 @@ singularity {
 }
 ```
 ## 4. รายละเอียดขั้นตอนใน Nextflow-GWAS-PopGen
+สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำ Preprocess Data ได้แก่ PLINK (version 1.9b) และ BCFtools (version 1.17) โดยผู้ใช้งานสามารถเลือกเครื่องที่ต้องการใช้ได้ โดยในขั้นตอนนี้จะมีการกรอง Minor Allele Frequency และ  Genotypeing rate ของ snps สัหรับการทำ GWAS และ Populations Analysis ในขั้นตอนต่อไป
 ### Preprocess Data
 ```bash
 process QualityControlByPLINK {
@@ -357,6 +358,7 @@ process QualityControlByBCFTools {
 }
 ```
 ### GWAS Analysis
+สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำ GWAS Analysis ได้แก่ GAPIT (version 3.0) ซึ่งเป็น package ที่อยุ่ภายในใต้การทำงานของ R (version 4.1.2)
 ```bash
 process GWASAnalysis {
 
@@ -406,7 +408,8 @@ process GWASAnalysis {
 		throw new Exception("Unknown method...")
 }
 ```
-### Selected PruneLD Tools and Population anlysis
+### Selected PruneLD Tools and Population analysis
+สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำ Selected PruneLD Tools ได้แก่ PLINK (version 1.9b) และ BCFtools (version 1.17) โดยจะทำการ Prune LD เพื่อกรอง snps เอาไปทำ Populations Analysis ได้แก่ IPCAP, Admixture, Phylogenetic, Fast Structures ต่อในขั้นตอนต่อไป โดยผู้ใช้งานสามาเลือกเครื่องมือได้
 ```bash
 process PruneLDByPLINK {
 
