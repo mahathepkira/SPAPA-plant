@@ -632,44 +632,83 @@ process VCFstats {
 ## 5. Output
 ### ภาพรวม Output
 ```bash
-Annotations
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
+GWAS
+└── GWASAnalysis
+     ├── GAPIT.GLM.length.Df.tValue.StdErr.csv
+     ├── GAPIT.GLM.length.GWAS.Results.csv
+     ├── GAPIT.GLM.length.Log.csv
+     ├── GAPIT.GLM.length.MAF.pdf
+     ├── GAPIT.GLM.length.Manhattan.Plot.Chromosomewise.pdf
+     ├── GAPIT.GLM.length.Manhattan.Plot.Genomewise.pdf
+     ├── GAPIT.GLM.length.Optimum.pdf
+     ├── GAPIT.GLM.length.phenotype_view.pdf
+     ├── GAPIT.GLM.length.PRED.csv
+     ├── GAPIT.GLM.length.QQ-Plot.pdf
+     ├── GAPIT.GLM.length.ROC.csv
+     ├── GAPIT.GLM.length.ROC.pdf
+     ├── GAPIT.GLM.week.Df.tValue.StdErr.csv
+     ├── GAPIT.GLM.week.GWAS.Results.csv
+     ├── GAPIT.GLM.week.Log.pdf
+     ├── GAPIT.GLM.week.MAF.pdf
+     ├── GAPIT.GLM.week.Manhattan.Plot.Chromosomewise.pdf
+     ├── GAPIT.GLM.week.Manhattan.Plot.Genomewise.pdf
+     ├── GAPIT.GLM.week.Optimum.pdf
+     ├── GAPIT.GLM.week.phenotype_view.pdf
+     ├── GAPIT.GLM.week.PRED.csv
+     ├── GAPIT.GLM.week.QQ-Plot.pdf
+     ├── GAPIT.GLM.week.ROC.csv
+     ├── GAPIT.GLM.week.ROC.pdf
+     ├── GAPIT.Heterozygosity.pdf
+     ├── GAPIT.Kin.VanRaden.csv
+     ├── GAPIT.Kin.VanRaden.pdf
+     ├── GAPIT.Marker.Density.pdf
+     ├── GAPIT.Marker.LD.pdf
+     ├── GAPIT.PCA.2D.pdf
+     ├── GAPIT.PCA.3D.pdf
+     ├── GAPIT.PCA.pdf
+     ├── GAPIT.PCA.eigenValue.pdf
+     ├── GAPIT.PCA.eigenvalues.csv             
+     └── GAPIT.PCA.loadings.csv
 ```
 
 ```bash
-Annotations_custom
-├── BuildCustomDB
-│    ├──snpeff_build.log
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
+VCFstats_GWAS
+├── cucumber_GBS.fixed.vcf.clean.vcf.frq
+├── cucumber_GBS.fixed.vcf.clean.vcf.lmiss
+├── cucumber_GBS.fixed.vcf.clean.vcf.summary
+├── cucumber_GBS.fixed.vcf.clean.vcf.TsTv.summary
+├── cucumber_GBS.fixed.vcf.clean.vcf_allele_frequency.csv
+└── cucumber_GBS.fixed.vcf.clean.vcf_lmiss_count.csv
+```
+```bash
+Faststructure
+└── Admixture
+└── AdmixtureIter1
+└── GatherAdmixtureResults
+└── StructureByFastStructure
+└── SummarizeAdmixture
+     ├── cv.errors.csv
+     └── optimalK.csv
+```
+```bash
+IPCAPS
+└── IPCAPs
+     └── cluster_output
+          ├── images
+          ├── RData
+          ├── groups.txt
+          ├── tree_scatter_cluster.html
+          ├── tree_scatter_label.htm
+          ├── tree_scree.html
+          └── tree_text.html
+```
+```bash
+VCFstats_PopGen
+├── cucumber_GBS.vcf.frq
+├── cucumber_GBS.vcf.lmiss
+├── cucumber_GBS.vcf.summary
+├── cucumber_GBS.fixed.vcf.clean.vcf.TsTv.summary
+├── cucumber_GBS.vcf_allele_frequency.csv
+└── cucumber_GBS.vcf_lmiss_count.csv
 ```
 
-```bash
-Annotations
-├── ANN_SnpSift
-│    ├──{samples}_SnpSift.vcf.gz
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
-```
-
-```bash
-Annotations
-├── Call_ANN
-│    ├── {samples}_overlap_shared.vcf.gz
-├── Combine_VCF
-│    ├── {samples}_combine.vcf.gz
-├── Compare_results
-│    ├── {samples}_overlap.vcf.gz
-│    └── {samples}_unique.vcf.gz
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
-```
