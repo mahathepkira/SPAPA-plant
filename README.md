@@ -711,5 +711,7 @@ VCFstats_PopGen
 ├── cucumber_GBS.vcf_allele_frequency.csv
 └── cucumber_GBS.vcf_lmiss_count.csv
 ```
-
-![ภาพ PCA](GAPIT.PCA.3D.pdf)
+### ตัวอย่าง PCA จาก GWAS Analysis
+![ภาพ PCA](PCA.png)
+### ตัวอย่าง Manhattan จาก GWAS Analysis
+![ภาพ Manhattan](Manhattan.png)
