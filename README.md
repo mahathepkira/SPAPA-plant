@@ -712,3 +712,4 @@ VCFstats_PopGen
 └── cucumber_GBS.vcf_lmiss_count.csv
 ```
 
+![ภาพ PCA](GAPIT.PCA.3D.pdf)
