@@ -17,6 +17,7 @@ vcftools --gzvcf "$vcf" --missing-site --out "${prefix}"
 vcftools --gzvcf "$vcf" --TsTv-summary --out "${prefix}"
 
 zcat "$vcf" | vcf-annotate --fill-type | grep -oP "TYPE=\\w+" | sort | uniq -c > "${prefix}.summary"
+bcftools stats  "$vcf"  >  "${prefix}.stat"
 
 echo "===== finished ====="
 
